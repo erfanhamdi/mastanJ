@@ -23,7 +23,7 @@ class Node:
         self.M_x = kwargs.get('M_x', None)
         self.M_y = kwargs.get('M_y', None)
         self.M_z = kwargs.get('M_z', None)
-        
+
         self.bc = [self.u_x, self.u_y, self.u_z, self.theta_x, self.theta_y, self.theta_z]
         self.load = [self.F_x, self.F_y, self.F_z, self.M_x, self.M_y, self.M_z]
         self.free_dofs = [i for i, x in enumerate(self.bc) if x is None]

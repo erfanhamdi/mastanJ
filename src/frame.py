@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 class Frame:
     # This class variable will be shared by all subclasses.
@@ -9,6 +10,14 @@ class Frame:
     Iz = None
     J = None
     nu = None
+    def __init__(self):
+            # Reset the counter only if this instance is exactly a Frame,
+            # not when creating an Element (a subclass of Frame).
+            if type(self) is Frame:
+                from element import Element
+                from node import Node
+                Node._counter = 0
+                Element._counter = 0
 
     @classmethod
     def set_cross_section(cls, E, A, Iy, Iz, J, nu):
@@ -71,30 +80,54 @@ class Frame:
             self.K[6*node_1_id:6*(node_1_id+1), 6*node_2_id:6*(node_2_id+1)] += small_K[:6, 6:]
             self.K[6*node_2_id:6*(node_2_id+1), 6*node_1_id:6*(node_1_id+1)] += small_K[6:, :6]
             self.K[6*node_2_id:6*(node_2_id+1), 6*node_2_id:6*(node_2_id+1)] += small_K[6:, 6:]
+        self.partition()
 
     def partition(self,):
-        free_dofs = []
+        self.free_dofs = []
         fixed_dofs = []
         f_list = []
         delta_list = []
+        self.dofs_array = np.zeros((len(self.nodes)*6))
         for node in self.nodes:
-            free_dofs += [i + 6*node.id for i in node.free_dofs]
+            self.free_dofs += [i + 6*node.id for i in node.free_dofs]
             fixed_dofs += [i + 6*node.id for i in node.fixed_dofs]
             f_list += node.load
             delta_list += node.bc
-        self.K_ff = self.K[np.ix_(free_dofs, free_dofs)]
-        self.K_fs = self.K[np.ix_(free_dofs, fixed_dofs)]
-        self.K_sf = self.K[np.ix_(fixed_dofs, free_dofs)]
+            coord_idx = 6*node.id
+            self.dofs_array[node.id*6:(node.id*6)+3] += node.coords
+        self.K_ff = self.K[np.ix_(self.free_dofs, self.free_dofs)]
+        self.K_fs = self.K[np.ix_(self.free_dofs, fixed_dofs)]
+        self.K_sf = self.K[np.ix_(fixed_dofs, self.free_dofs)]
         self.K_ss = self.K[np.ix_(fixed_dofs, fixed_dofs)]
-        self.F_f = np.array(f_list)[free_dofs]
+        self.F_f = np.array(f_list)[self.free_dofs]
+        
         # self.F_s = np.array(f_list)[fixed_dofs]
         # self.Delta_f = np.array(delta_list)[free_dofs]
-        # Delta_s = np.array(delta_list)[fixed_dofs]
+        self.Delta_s = np.array(delta_list)[fixed_dofs] * 0
 
     def solve(self,):
-        self.Delta_f = np.linalg.pinv(self.K_ff) @ self.F_f
+        self.Delta_f = np.linalg.inv(self.K_ff) @ self.F_f
         self.F_s = self.K_sf @ self.Delta_f
         return self.Delta_f, self.F_s
     
-
+    def plot_initial(self,):
+        plt.figure()
+        for node in self.nodes:
+            plt.scatter(node.coords[0], node.coords[1], color='red')
+        for elem in self.elems:
+            x = [elem.node_list[0].coords[0], elem.node_list[1].coords[0]]
+            y = [elem.node_list[0].coords[1], elem.node_list[1].coords[1]]
+            plt.plot(x, y, color='black')
+    
+    def plot_deformed(self, dofs_array_deformed, scale = 10):
+        self.plot_initial()
+        dofs_array_deformed[self.free_dofs] = self.dofs_array[self.free_dofs] + self.Delta_f * scale
+        x = dofs_array_deformed[0::6]
+        y = dofs_array_deformed[1::6]
+        plt.scatter(x, y, color='red')
+        for i, elem in enumerate(self.elems):
+            x = [dofs_array_deformed[6*elem.node_list[0].id], dofs_array_deformed[6*elem.node_list[1].id]]
+            y = [dofs_array_deformed[6*elem.node_list[0].id+1], dofs_array_deformed[6*elem.node_list[1].id+1]]
+            plt.plot(x, y, 'k--')
+        plt.show()
         
