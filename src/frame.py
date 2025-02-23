@@ -55,13 +55,6 @@ class Frame:
             adj_mat[node_2_id, node_2_id] = 1
         return adj_mat
 
-    def adjacency_filter(self, adj_mat):
-        adj_filter = np.zeros((6 * adj_mat.shape[0], 6 * adj_mat.shape[1]))
-        for i in range(adj_mat.shape[0]):
-            for j in range(adj_mat.shape[1]):
-                adj_filter[6*i:6*(i+1), 6*j:6*(j+1)] = adj_mat[i, j]
-        return adj_filter
-    
     def num_dofs(self):
         node_dict = {}
         for node in self.nodes:
@@ -106,7 +99,7 @@ class Frame:
         self.Delta_s = np.array(delta_list)[fixed_dofs] * 0
 
     def solve(self,):
-        self.Delta_f = np.linalg.inv(self.K_ff) @ self.F_f
+        self.Delta_f = np.linalg.pinv(self.K_ff) @ self.F_f
         self.F_s = self.K_sf @ self.Delta_f
         return self.Delta_f, self.F_s
     
@@ -132,5 +125,4 @@ class Frame:
             plt.plot(x, y, 'k--')
         plt.legend()
         plt.plot(x, y, 'k--', label = f"Deformed (scale = {scale}")
-        plt.show()
         
