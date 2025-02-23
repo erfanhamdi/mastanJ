@@ -118,6 +118,7 @@ class Frame:
             x = [elem.node_list[0].coords[0], elem.node_list[1].coords[0]]
             y = [elem.node_list[0].coords[1], elem.node_list[1].coords[1]]
             plt.plot(x, y, color='black')
+        plt.plot(x, y, color='black', label = f"Initial state")
     
     def plot_deformed(self, dofs_array_deformed, scale = 10):
         self.plot_initial()
@@ -129,5 +130,7 @@ class Frame:
             x = [dofs_array_deformed[6*elem.node_list[0].id], dofs_array_deformed[6*elem.node_list[1].id]]
             y = [dofs_array_deformed[6*elem.node_list[0].id+1], dofs_array_deformed[6*elem.node_list[1].id+1]]
             plt.plot(x, y, 'k--')
+        plt.legend()
+        plt.plot(x, y, 'k--', label = f"Deformed (scale = {scale}")
         plt.show()
         
