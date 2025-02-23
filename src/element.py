@@ -44,7 +44,7 @@ class Element(Frame):
         if Element.nu is not None:
             self.nu = Element.nu
         else:
-            self.nu = kwargs.get('nu', 1.0)
+            self.nu = kwargs.get('nu', 0.3)
     
     def __repr__(self):
         # prints the element's properties
