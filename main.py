@@ -1,9 +1,8 @@
 import numpy as np
 
-from frame import Frame
-from element import Element
-from node import Node
-from bc import BC
+from src.frame import Frame
+from src.element import Element
+from src.node import Node
 
 if __name__ == "__main__":
     # Example 3.2 from the book page 38

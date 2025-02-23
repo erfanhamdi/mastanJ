@@ -1,0 +1,18 @@
+Metadata-Version: 2.2
+Name: mastanJ
+Version: 0.1.0
+Summary: ME700-assignment-2
+Author-email: Erfan Hamdi <Erfan@bu.edu>
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: matplotlib==3.10.0
+Requires-Dist: numpy==2.2.2
+Requires-Dist: pytest==7.1.2
+Requires-Dist: pytest-cov==3.0.0
+
+# ME700-Assignment-2 Matrix Structural Analysis code
+* This is the code to run the matrix structural analysis for the given problem statement.
+* You can find the tutorial notebook in `src/tutorials.ipynb`
