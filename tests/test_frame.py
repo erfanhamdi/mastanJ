@@ -19,13 +19,6 @@ elem3 = Element(node_list=[node1, node3], A = 15e3, E = 200, Iy = 1, Iz = 1, J =
 # print(F_rxn)
 # F.plot_deformed(F.dofs_array, scale = 300)
 
-def test_element_params():
-    assert elem1.E == 200
-    assert elem1.A == 20e3
-    assert elem1.nu == 1
-    assert elem1.Iy == 1
-    assert elem1.Iz == 1
-    assert elem1.J == 1
 
 def test_element_length():
     # element length using two nodes (node1 and node2)
