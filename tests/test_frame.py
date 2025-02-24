@@ -1,9 +1,9 @@
 import numpy as np
+import pytest
 
 from src.frame import Frame
 from src.element import Element
 from src.node import Node
-import pytest
 
 F = Frame()
 node1 = Node(coords = np.array([0, 0, 0]), F_x = 500*np.cos(40*np.pi/180), F_y = 500*np.sin(40*np.pi/180), F_z = 0, M_x = 0, M_y = 0, M_z = 0) # node a
@@ -12,13 +12,6 @@ node3 = Node(coords = np.array([-6.928, -4, 0]), u_x = 0, u_y = 0, u_z = 0, thet
 elem1 = Element(node_list=[node1, node2], A = 20e3, E = 200, Iy = 1, Iz = 1, J = 1)
 elem2 = Element(node_list=[node2, node3], A = 18e3, E = 200, Iy = 1, Iz = 1, J = 1)
 elem3 = Element(node_list=[node1, node3], A = 15e3, E = 200, Iy = 1, Iz = 1, J = 1)
-# F.add_elements([elem1, elem2, elem3])
-# F.assemble()
-# delta, F_rxn = F.solve()
-# print(delta)
-# print(F_rxn)
-# F.plot_deformed(F.dofs_array, scale = 300)
-
 
 def test_element_length():
     # element length using two nodes (node1 and node2)

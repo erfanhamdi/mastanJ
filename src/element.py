@@ -8,41 +8,23 @@ class Element(Frame):
         self.coord_list = [node_list[0].coords[0], node_list[0].coords[1], node_list[0].coords[2], node_list[1].coords[0], node_list[1].coords[1], node_list[1].coords[2]]
         self.local_z = kwargs.get('local_z', None)
         
-        if Element.E is not None:
-            self.E = Element.E
-        else:
-            self.E = kwargs.get('E', 1.0)
+        self.E = kwargs.get('E', 1.0)
 
-        if Element.A is not None:
-            self.A = Element.A
-        else:
-            self.A = kwargs.get('A', 1.0)
-        
+        self.A = kwargs.get('A', 1.0)
+    
         self.L = numpy.linalg.norm(node_list[1].coords - node_list[0].coords)
         
-        if Element.Iy is not None:
-            self.Iy = Element.Iy
-        else:
-            self.Iy = kwargs.get('Iy', 1.0)
+        self.Iy = kwargs.get('Iy', 1.0)
 
-        if Element.Iz is not None:
-            self.Iz = Element.Iz
-        else:
-            self.Iz = kwargs.get('Iz', 1.0)
+        self.Iz = kwargs.get('Iz', 1.0)
 
-        if Element.J is not None:
-            self.J = Element.J
-        else:
-            self.J = kwargs.get('J', 1.0)
-        
-        if Element.nu is not None:
-            self.nu = Element.nu
-        else:
-            self.nu = kwargs.get('nu', 0.3)
+        self.J = kwargs.get('J', 1.0)
+    
+        self.nu = kwargs.get('nu', 0.3)
 
     def __repr__(self):
         # prints the element's properties
-        return f"Element id: {self.id} (E={self.E}), A={self.A}, L={self.L}, Iy={self.Iy}, Iz={self.Iz}, J={self.J}, nu={self.nu}"
+        return f"Element id: (E={self.E}), A={self.A}, L={self.L}, Iy={self.Iy}, Iz={self.Iz}, J={self.J}, nu={self.nu}"
     
     def stiffness_mat(self,):
         return local_elastic_stiffness_matrix_3D_beam(self.E, self.nu, self.A, self.L, self.Iy, self.Iz, self.J)

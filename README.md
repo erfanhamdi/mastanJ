@@ -25,7 +25,7 @@ pip install -e .
 ```
 4. You can run the tests using the `pytest` module
 ```
-pytest -v --cov=setupexample  --cov-report term-missing
+pytest -v --cov=src  --cov-report term-missing
 ```
 ## How to implement your own example?
 1. First create a `Frame` object.
