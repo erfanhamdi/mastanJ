@@ -1,15 +1,10 @@
 import numpy as np
+from frame import Frame
 
 class Node:
-    _counter = 0
     def __init__(self, coords, **kwargs):
         self.coords = coords
-        self.id = kwargs.get('id', None)
-        if self.id is not None:
-            self.id = self.id
-        else:
-            self.id = self._counter
-            Node._counter += 1
+        self.id = 0
         self.u_x = kwargs.get('u_x', None)
         self.u_y = kwargs.get('u_y', None)
         self.u_z = kwargs.get('u_z', None)

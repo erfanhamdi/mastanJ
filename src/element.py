@@ -3,16 +3,10 @@ from frame import Frame
 from math_utils import local_elastic_stiffness_matrix_3D_beam, rotation_matrix_3D, transformation_matrix_3D
 
 class Element(Frame):
-    _counter = 0
     def __init__(self, node_list, **kwargs):
         self.node_list = node_list
         self.coord_list = [node_list[0].coords[0], node_list[0].coords[1], node_list[0].coords[2], node_list[1].coords[0], node_list[1].coords[1], node_list[1].coords[2]]
-        id = kwargs.get('id', None)
-        if id is not None:
-            self.id = id
-        else:
-            self.id = Element._counter
-            Element._counter += 1
+        self.local_z = kwargs.get('local_z', None)
         
         if Element.E is not None:
             self.E = Element.E
@@ -45,7 +39,7 @@ class Element(Frame):
             self.nu = Element.nu
         else:
             self.nu = kwargs.get('nu', 0.3)
-    
+
     def __repr__(self):
         # prints the element's properties
         return f"Element id: {self.id} (E={self.E}), A={self.A}, L={self.L}, Iy={self.Iy}, Iz={self.Iz}, J={self.J}, nu={self.nu}"
@@ -54,7 +48,7 @@ class Element(Frame):
         return local_elastic_stiffness_matrix_3D_beam(self.E, self.nu, self.A, self.L, self.Iy, self.Iz, self.J)
     
     def Gamma(self,):
-        gamma = rotation_matrix_3D(*self.coord_list)
+        gamma = rotation_matrix_3D(v_temp=self.local_z, *self.coord_list)
         return transformation_matrix_3D(gamma)
     
     def global_stiffness_mat(self,):
