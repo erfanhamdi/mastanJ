@@ -54,33 +54,53 @@ class Frame:
 
     def num_dofs(self):
         return 6 * len(self.nodes)
+        
+    @partial(jit, static_argnums=(0,))
+    def _add_element_stiffness(self, K, small_K, node_1_id, node_2_id):
+        """JIT-compatible function to add element stiffness to global matrix"""
+        start1 = node_1_id * 6
+        start2 = node_2_id * 6
+        
+        # Update the four blocks using dynamic updates
+        # Block 1,1
+        for i in range(6):
+            for j in range(6):
+                K = K.at[start1 + i, start1 + j].add(small_K[i, j])
+                
+        # Block 1,2
+        for i in range(6):
+            for j in range(6):
+                K = K.at[start1 + i, start2 + j].add(small_K[i, j + 6])
+                
+        # Block 2,1
+        for i in range(6):
+            for j in range(6):
+                K = K.at[start2 + i, start1 + j].add(small_K[i + 6, j])
+                
+        # Block 2,2
+        for i in range(6):
+            for j in range(6):
+                K = K.at[start2 + i, start2 + j].add(small_K[i + 6, j + 6])
+                
+        return K
 
     def assemble(self):
-        # Pre-compute all stiffness matrices
-        elem_stiffness_matrices = []
-        node_indices = []
-        
-        for elem in self.elems:
-            elem_stiffness_matrices.append(elem.global_stiffness_mat())
-            node_indices.append((elem.node_list[0].id, elem.node_list[1].id))
-        
         # Initialize K
         self.K = np.zeros((self.number_of_dofs, self.number_of_dofs))
         
-        # Assemble K manually without JIT
-        for i, small_K in enumerate(elem_stiffness_matrices):
-            node_1_id, node_2_id = node_indices[i]
+        # Process each element
+        for elem in self.elems:
+            small_K = elem.global_stiffness_mat()
+            node_1_id = elem.node_list[0].id
+            node_2_id = elem.node_list[1].id
             
-            start1 = 6 * node_1_id
-            end1 = 6 * (node_1_id + 1)
-            start2 = 6 * node_2_id
-            end2 = 6 * (node_2_id + 1)
-            
-            # Update all four blocks
-            self.K = self.K.at[start1:end1, start1:end1].add(small_K[:6, :6])
-            self.K = self.K.at[start1:end1, start2:end2].add(small_K[:6, 6:])
-            self.K = self.K.at[start2:end2, start1:end1].add(small_K[6:, :6])
-            self.K = self.K.at[start2:end2, start2:end2].add(small_K[6:, 6:])
+            # Use JIT-compiled function to add element stiffness
+            self.K = self._add_element_stiffness(
+                self.K, 
+                small_K, 
+                np.array(node_1_id, dtype=np.int32), 
+                np.array(node_2_id, dtype=np.int32)
+            )
         
         # Initialize F and Delta
         self.F = np.zeros(self.number_of_dofs)
