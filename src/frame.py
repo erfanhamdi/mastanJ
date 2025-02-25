@@ -30,24 +30,6 @@ class Frame:
             node.id = node_id
         self.number_of_dofs = self.num_dofs()
 
-    def are_elems_connected(self, elem_1, elem_2):
-        # check if two elems have a common node object
-        for node in elem_1.node_list:
-            if node in elem_2.node_list:
-                return 1
-        return 0
-    
-    def adjacency_matrix(self, elems):
-        adj_mat = np.zeros((len(elems)+1, len(elems)+1))
-        for elem in elems:
-            node_1_id = elem.node_list[0].id
-            node_2_id = elem.node_list[1].id
-            adj_mat[node_1_id, node_2_id] = 1
-            adj_mat[node_2_id, node_1_id] = 1
-            adj_mat[node_1_id, node_1_id] = 1
-            adj_mat[node_2_id, node_2_id] = 1
-        return adj_mat
-
     def num_dofs(self):
         node_dict = {}
         for node in self.nodes:
@@ -85,26 +67,26 @@ class Frame:
         self.F[self.fixed_dofs] = self.K_sf @ self.Delta[self.free_dofs] 
         return self.Delta, self.F
     
-    def plot_initial(self,):
-        plt.figure()
-        for node in self.nodes:
-            plt.scatter(node.coords[0], node.coords[1], color='red')
-        for elem in self.elems:
-            x = [elem.node_list[0].coords[0], elem.node_list[1].coords[0]]
-            y = [elem.node_list[0].coords[1], elem.node_list[1].coords[1]]
-            plt.plot(x, y, color='black')
-        plt.plot(x, y, color='black', label = f"Initial state")
+    # def plot_initial(self,):
+    #     plt.figure()
+    #     for node in self.nodes:
+    #         plt.scatter(node.coords[0], node.coords[1], color='red')
+    #     for elem in self.elems:
+    #         x = [elem.node_list[0].coords[0], elem.node_list[1].coords[0]]
+    #         y = [elem.node_list[0].coords[1], elem.node_list[1].coords[1]]
+    #         plt.plot(x, y, color='black')
+    #     plt.plot(x, y, color='black', label = f"Initial state")
     
-    def plot_deformed(self, dofs_array_deformed, scale = 10):
-        self.plot_initial()
-        dofs_array_deformed[self.free_dofs] = self.dofs_array[self.free_dofs] + self.Delta_f * scale
-        x = dofs_array_deformed[0::6]
-        y = dofs_array_deformed[1::6]
-        plt.scatter(x, y, color='red')
-        for i, elem in enumerate(self.elems):
-            x = [dofs_array_deformed[6*elem.node_list[0].id], dofs_array_deformed[6*elem.node_list[1].id]]
-            y = [dofs_array_deformed[6*elem.node_list[0].id+1], dofs_array_deformed[6*elem.node_list[1].id+1]]
-            plt.plot(x, y, 'k--')
-        plt.legend()
-        plt.plot(x, y, 'k--', label = f"Deformed (scale = {scale}")
+    # def plot_deformed(self, dofs_array_deformed, scale = 10):
+    #     self.plot_initial()
+    #     dofs_array_deformed[self.free_dofs] = self.dofs_array[self.free_dofs] + self.Delta_f * scale
+    #     x = dofs_array_deformed[0::6]
+    #     y = dofs_array_deformed[1::6]
+    #     plt.scatter(x, y, color='red')
+    #     for i, elem in enumerate(self.elems):
+    #         x = [dofs_array_deformed[6*elem.node_list[0].id], dofs_array_deformed[6*elem.node_list[1].id]]
+    #         y = [dofs_array_deformed[6*elem.node_list[0].id+1], dofs_array_deformed[6*elem.node_list[1].id+1]]
+    #         plt.plot(x, y, 'k--')
+    #     plt.legend()
+    #     plt.plot(x, y, 'k--', label = f"Deformed (scale = {scale}")
         

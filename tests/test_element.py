@@ -3,6 +3,7 @@ import numpy as np
 from src.frame import Frame
 from src.element import Element
 from src.node import Node
+import math_utils
 
 
 
@@ -24,3 +25,17 @@ def test_element_params():
 def test_element_length():
     assert elem1.L == np.sqrt(2*4**2)
 
+def test_element_local_stiffness_mat():
+    expected_local_stiffness_mat = math_utils.local_elastic_stiffness_matrix_3D_beam(elem1.E, elem1.nu, elem1.A, elem1.L, elem1.Iy, elem1.Iz, elem1.J)
+    assert np.allclose(elem1.stiffness_mat(), expected_local_stiffness_mat)
+
+def test_element_rotation_matrix():
+    gamma = math_utils.rotation_matrix_3D(v_temp=elem1.local_z, *elem1.coord_list)
+    Gamma = math_utils.transformation_matrix_3D(gamma)
+    assert np.allclose(elem1.Gamma(), Gamma)
+
+def test_element_global_stiffness_mat():
+    gamma = math_utils.rotation_matrix_3D(v_temp=elem1.local_z, *elem1.coord_list)
+    Gamma = math_utils.transformation_matrix_3D(gamma)
+    expected_global_stiffness_mat = Gamma.T @ elem1.stiffness_mat() @ Gamma
+    assert np.allclose(elem1.global_stiffness_mat(), expected_global_stiffness_mat)
