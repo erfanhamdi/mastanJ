@@ -1,7 +1,7 @@
 # ME700-Assignment-2 Matrix Structural Analysis code
 * This is the code to run the matrix structural analysis for the given problem statement.
 * You can find the tutorial notebook in `tutorials.ipynb`
-# mastanJ-2025-MECHE-BU
+# mastanJ(AX?)
 [![python](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
 ![os](https://img.shields.io/badge/os-ubuntu%20|%20macos%20|%20windows-blue.svg)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/sandialabs/sibl#license)
