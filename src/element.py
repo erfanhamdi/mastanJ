@@ -1,6 +1,6 @@
 import numpy
 from frame import Frame
-from math_utils import local_elastic_stiffness_matrix_3D_beam, rotation_matrix_3D, transformation_matrix_3D
+from math_utils import local_elastic_stiffness_matrix_3D_beam, rotation_matrix_3D, transformation_matrix_3D, local_geometric_stiffness_matrix_3D_beam
 
 class Element(Frame):
     def __init__(self, node_list, **kwargs):
@@ -18,6 +18,8 @@ class Element(Frame):
 
         self.Iz = kwargs.get('Iz', 1.0)
 
+        self.I_rho = kwargs.get('I_rho', 1.0)
+        
         self.J = kwargs.get('J', 1.0)
     
         self.nu = kwargs.get('nu', 0.3)
@@ -28,6 +30,11 @@ class Element(Frame):
     
     def stiffness_mat(self,):
         return local_elastic_stiffness_matrix_3D_beam(self.E, self.nu, self.A, self.L, self.Iy, self.Iz, self.J)
+    
+    def geometric_stiffness_mat(self,F):
+        """Fx2, Mx2, My1, Mz1, My2, Mz2"""
+        F_list = [F[6], F[9], F[4], F[5], F[10], F[11]]
+        return local_geometric_stiffness_matrix_3D_beam(self.L, self.A, self.I_rho, *F_list)
     
     def Gamma(self,):
         gamma = rotation_matrix_3D(v_temp=self.local_z, *self.coord_list)
