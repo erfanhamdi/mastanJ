@@ -1,4 +1,5 @@
-import numpy
+import jax.numpy as np
+from typing import Tuple, Optional
 from frame import Frame
 from math_utils import local_elastic_stiffness_matrix_3D_beam, rotation_matrix_3D, transformation_matrix_3D
 
@@ -12,7 +13,7 @@ class Element(Frame):
 
         self.A = kwargs.get('A', 1.0)
     
-        self.L = numpy.linalg.norm(node_list[1].coords - node_list[0].coords)
+        self.L = np.linalg.norm(node_list[1].coords - node_list[0].coords)
         
         self.Iy = kwargs.get('Iy', 1.0)
 
