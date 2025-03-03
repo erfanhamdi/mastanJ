@@ -77,16 +77,27 @@ class Frame:
     def assemble_geometric(self,):
         self.K_g = np.zeros((self.number_of_dofs, self.number_of_dofs))
         for i, elem in enumerate(self.elems):
+            elem_internal_force = elem.internal_force(self.Delta)
+            elem.geometric_stiffness_mat(elem_internal_force)
             small_K_g = elem.global_geometric_stiffness_mat(elem.k_g)
             node_1_id = elem.node_list[0].id
             node_2_id = elem.node_list[1].id
+
             self.K_g[6*node_1_id:6*(node_1_id+1), 6*node_1_id:6*(node_1_id+1)] += small_K_g[:6, :6]
             self.K_g[6*node_1_id:6*(node_1_id+1), 6*node_2_id:6*(node_2_id+1)] += small_K_g[:6, 6:]
             self.K_g[6*node_2_id:6*(node_2_id+1), 6*node_1_id:6*(node_1_id+1)] += small_K_g[6:, :6]
             self.K_g[6*node_2_id:6*(node_2_id+1), 6*node_2_id:6*(node_2_id+1)] += small_K_g[6:, 6:]
-        
+        self.partition_geometric()    
+
+    def partition_geometric(self,):
+        f_list = []
+        self.K_ff_g = self.K_g[np.ix_(self.free_dofs, self.free_dofs)]
+        self.K_fs_g = self.K_g[np.ix_(self.free_dofs, self.fixed_dofs)]
+        self.K_sf_g = self.K_g[np.ix_(self.fixed_dofs, self.free_dofs)]
+        self.K_ss_g = self.K_g[np.ix_(self.fixed_dofs, self.fixed_dofs)]
+
     def eigenvalue_analysis(self,):
-        eig_val, eig_vec = scipy.linalg.eig(self.K, -self.K_g)
+        eig_val, eig_vec = scipy.linalg.eig(self.K_ff, -self.K_ff_g)
         return eig_val, eig_vec
 
 
