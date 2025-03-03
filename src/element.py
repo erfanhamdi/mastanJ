@@ -37,7 +37,7 @@ class Element(Frame):
     
     def geometric_stiffness_mat(self,F):
         """Fx2, Mx2, My1, Mz1, My2, Mz2"""
-        F = self.Gamma().T @ F
+        # F = self.Gamma().T @ F
         F_list = [F[6], F[9], F[4], F[5], F[10], F[11]]
         self.k_g = local_geometric_stiffness_matrix_3D_beam(self.L, self.A, self.I_rho, *F_list)
     
@@ -52,7 +52,7 @@ class Element(Frame):
         return self.Gamma().T @ self.stiffness_mat() @ self.Gamma()
     
     def internal_force(self, delta):
-         return self.global_stiffness_mat() @ delta[self.element_dof_list_]
+         return self.Gamma() @ (self.global_stiffness_mat()  @ delta[self.element_dof_list_])
 
 # Example usage:
 

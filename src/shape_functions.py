@@ -26,6 +26,7 @@ def plot_deformed(elem_list, shape_function, displacement_vector, scale: float =
     deformed_shape_list = []
     for elem_ in elem_list:
         deformed_shape_array = shape_function.apply(displacement_vector[elem_.dof_list()] * scale, elem_)
+        deformed_shape_array.Transpose(-1, 0, 1)
         deformed_shape_list.append(deformed_shape_array)
         discretization_points = len(deformed_shape_array)
         ax.scatter(deformed_shape_array[0, 0], deformed_shape_array[0, 1], deformed_shape_array[0, 2], c='r', s=10)
