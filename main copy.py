@@ -3,7 +3,7 @@ import numpy as np
 from src.frame import Frame
 from src.element import Element
 from src.node import Node
-from src.shape_functions import plot_mode_shape, HermiteShapeFunctions
+from src.shape_functions3 import  plot_mode_shape, HermiteShapeFunctions
 
 if __name__ == "__main__":
     # r = 1
@@ -99,12 +99,12 @@ if __name__ == "__main__":
     print(eigvals)
     critical_load_idx = np.argsort(abs(eigvals.real))[0]
     mode_shape = eigvecs[:, critical_load_idx]
-    eigvec_array = np.zeros(len(F7.free_dofs) + len(F7.fixed_dofs))
-    eigvec_array[F7.free_dofs] = mode_shape
-    eigvec_array[F7.fixed_dofs] = 0
+    # eigvec_array = np.zeros(len(F7.free_dofs) + len(F7.fixed_dofs))
+    # eigvec_array[F7.free_dofs] = mode_shape
+    # eigvec_array[F7.fixed_dofs] = 0
     print(f"Critical buckling load:\n {abs(eigvals.real)[critical_load_idx]}")
     print(f"Buckling mode:\n {eigvecs[:, critical_load_idx]}")
-    plot_mode_shape(F7, F7.elems, hermite_sf, -eigvecs[:, critical_load_idx], scale=5, discretization_points=20)
+    plot_mode_shape(F7, F7.elems, hermite_sf, -mode_shape, scale=5, discretization_points=20)
 
 
     L = 50
@@ -132,10 +132,10 @@ if __name__ == "__main__":
     eigvals, eigvecs = F6.eigenvalue_analysis()
     critical_load_idx = np.argsort(abs(eigvals.real))[0]
     mode_shape = eigvecs[:, critical_load_idx]
-    eigvec_array = np.zeros(len(F6.free_dofs) + len(F6.fixed_dofs))
-    eigvec_array[F6.free_dofs] = mode_shape
-    eigvec_array[F6.fixed_dofs] = 0
+    # eigvec_array = np.zeros(len(F6.free_dofs) + len(F6.fixed_dofs))
+    # eigvec_array[F6.free_dofs] = mode_shape
+    # eigvec_array[F6.fixed_dofs] = 0
     print(f"Critical buckling load:\n {abs(eigvals.real)[critical_load_idx]}")
     print(f"Buckling mode:\n {eigvecs[:, critical_load_idx]}")
-    plot_mode_shape(F6, F6.elems, hermite_sf, eigvecs[:, critical_load_idx], scale=10, discretization_points=20)
+    plot_mode_shape(F6, F6.elems, hermite_sf, mode_shape, scale=10, discretization_points=20)
     

@@ -53,7 +53,6 @@ def plot_mode_shape(Frame, elem_list, shape_function, eigenvector, scale: float 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     node_coords = np.concatenate([Frame.nodes[i].coords for i in range(len(Frame.nodes))]).reshape(-1, 3)
-    
     # Plot original shape
     for elem_ in elem_list:
         x_lin = np.linspace(elem_.node_list[0].coords[0], elem_.node_list[1].coords[0], discretization_points)
@@ -62,95 +61,38 @@ def plot_mode_shape(Frame, elem_list, shape_function, eigenvector, scale: float 
         ax.plot(x_lin, y_lin, z_lin, '--k')
     ax.plot(x_lin, y_lin, z_lin, '--k', label='Original Shape')
     
-    # Prepare eigenvector data
     free_dofs = Frame.free_dofs
     fixed_dofs = Frame.fixed_dofs
     eigenvector_array = np.zeros(len(free_dofs) + len(fixed_dofs))
     eigenvector_array[free_dofs] = eigenvector
     eigenvector_array[fixed_dofs] = 0
+    # eigenvector_array = elem_list[0].Gamma() @ eigenvector_array
     eigenvector_array = eigenvector_array.reshape(-1, 6)
+    eigen_vector_xyz = eigenvector_array[:, :3]
+    deformed_coords = node_coords + eigen_vector_xyz * scale
+    deformed_theta = eigenvector_array[:, 3:] * scale
+    deformed_array = np.concatenate([deformed_coords, deformed_theta], axis=1)
     
     for elem_ in elem_list:
         node_ids = [elem_.node_list[0].id, elem_.node_list[1].id]
+        # deformed_array_ = elem_.Gamma().T @ deformed_array[node_ids].reshape(-1)
+        # deformed_array_ = deformed_array_.reshape(-1, 6)
+        x_new, mode_shape_array = shape_function.apply(deformed_array[node_ids], elem_, discretization_points)
         
-        # Get node coordinates and eigenvector displacements
-        node0_coords = elem_.node_list[0].coords
-        node1_coords = elem_.node_list[1].coords
-        node0_disp = eigenvector_array[node_ids[0], :3] * scale
-        node1_disp = eigenvector_array[node_ids[1], :3] * scale
-        node0_rot = eigenvector_array[node_ids[0], 3:] * scale
-        node1_rot = eigenvector_array[node_ids[1], 3:] * scale
+        # Determine beam orientation
+        is_straight_beam = np.allclose(elem_.node_list[0].coords[1], elem_.node_list[1].coords[1])
         
-        # Get beam direction vector and length
-        beam_vec = node1_coords - node0_coords
-        beam_length = np.linalg.norm(beam_vec)
-        beam_dir = beam_vec / beam_length
-        
-        # Create local coordinate system
-        x_local = beam_dir
-        # Choose appropriate reference for constructing local y and z
-        if abs(np.dot(x_local, np.array([0, 0, 1]))) < 0.95:
-            y_temp = np.cross(np.array([0, 0, 1]), x_local)
+        # Plot differently based on beam orientation
+        if is_straight_beam:
+            ax.plot(x_new[:, 0], mode_shape_array[:, 1], x_new[:, 2], '-r',  label='Mode Shape')
         else:
-            y_temp = np.cross(np.array([0, 1, 0]), x_local)
-        y_temp = y_temp / np.linalg.norm(y_temp)
-        z_local = np.cross(x_local, y_temp)
-        z_local = z_local / np.linalg.norm(z_local)
-        y_local = np.cross(z_local, x_local)
+            ax.plot(x_new[:, 0], x_new[:, 1], mode_shape_array[:, 2], '-r',  label='Mode Shape')
         
-        # Transformation matrix (from global to local)
-        T = np.zeros((3, 3))
-        T[0, :] = x_local
-        T[1, :] = y_local
-        T[2, :] = z_local
-        
-        # Transform displacements to local coordinates
-        node0_disp_local = T @ node0_disp
-        node1_disp_local = T @ node1_disp
-        node0_rot_local = T @ node0_rot
-        node1_rot_local = T @ node1_rot
-        
-        # Generate points along the beam in local coordinates
-        s_values = np.linspace(0, 1, discretization_points)
-        local_coords = np.zeros((discretization_points, 3))
-        
-        # Apply shape functions for all directions
-        for i in range(3):
-            # Linear shape functions for axial (along beam) displacement
-            if i == 0:
-                # Linear interpolation for x-direction (axial)
-                N1 = 1 - s_values
-                N2 = s_values
-                local_coords[:, i] = s_values * beam_length + N1 * node0_disp_local[i] + N2 * node1_disp_local[i]
-            else:
-                # Hermite shape functions for transverse displacements (y and z)
-                N1 = 1 - 3*s_values**2 + 2*s_values**3
-                N2 = 3*s_values**2 - 2*s_values**3
-                N3 = beam_length * (s_values - 2*s_values**2 + s_values**3)
-                N4 = beam_length * (-s_values**2 + s_values**3)
-                
-                # Apply shape functions for transverse directions
-                local_coords[:, i] = (
-                    N1 * node0_disp_local[i] +
-                    N2 * node1_disp_local[i] +
-                    N3 * node0_rot_local[i-1] +  # Rotation about axis perpendicular to i direction
-                    N4 * node1_rot_local[i-1]
-                )
-        
-        # Transform back to global coordinates and add original position
-        global_coords = np.zeros((discretization_points, 3))
-        for i in range(discretization_points):
-            global_coords[i] = node0_coords + T.T @ local_coords[i]
-        
-        # Plot the deformed shape
-        ax.plot(global_coords[:, 0], global_coords[:, 1], global_coords[:, 2], '-r')
-        ax.scatter(global_coords[0, 0], global_coords[0, 1], global_coords[0, 2], c='r', s=10)
-        ax.scatter(global_coords[-1, 0], global_coords[-1, 1], global_coords[-1, 2], c='r', s=10)
-    
-    # First element for legend
-    ax.plot([], [], [], '-r', label='Mode Shape')
-    
-    ax.legend()
+        ax.scatter(x_new[0, 0], x_new[0, 1], x_new[0, 2], c='r', s=10)
+        ax.scatter(x_new[-1, 0], x_new[-1, 1], x_new[-1, 2], c='r', s=10)
+        # ax.plot(x_new[:, 0], x_new[:, 1], mode_shape_array[:, 2], '-r', label='Mode Shape')
+    ax.set_zlim(-25, 15)
+    # ax.legend()
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.set_zlabel('z')
