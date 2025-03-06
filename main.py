@@ -258,5 +258,3 @@ if __name__ == "__main__":
     print(f"Critical buckling load:\n {abs(eigvals.real)[critical_load_idx]}")
     print(f"Buckling mode:\n {eigvecs[:, critical_load_idx]}")
     plot_mode_shape(F10, F10.elems, hermite_sf, eigvecs[:, critical_load_idx], scale=10, discretization_points=20)
-    import matplotlib.pyplot as plt
-    plt.savefig("mode_shape.png")
