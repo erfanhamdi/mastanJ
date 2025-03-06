@@ -129,17 +129,27 @@ def plot_mode_shape(Frame, elem_list, shape_function, eigenvector, scale: float 
                 N3 = beam_length * (s_values - 2*s_values**2 + s_values**3)
                 N4 = beam_length * (-s_values**2 + s_values**3)
                 
+                # For transverse directions, we need to map the rotation indices correctly
+                # For y-direction (i=1), use rotation about z-axis (index 2)
+                # For z-direction (i=2), use rotation about y-axis (index 1) with negative sign
+                # rot_idx = 2 if i == 1 else 1
+                # rot_sign = 1.0 if i == 1 else -1.0
+                
                 # Apply shape functions for transverse directions
                 local_coords[:, i] = (
                     N1 * node0_disp_local[i] +
                     N2 * node1_disp_local[i] +
                     N3 * node0_rot_local[i-1] +  # Rotation about axis perpendicular to i direction
                     N4 * node1_rot_local[i-1]
+
+                    # rot_sign * N3 * node0_rot_local[rot_idx] +
+                    # rot_sign * N4 * node1_rot_local[rot_idx]
                 )
         
         # Transform back to global coordinates and add original position
         global_coords = np.zeros((discretization_points, 3))
         for i in range(discretization_points):
+            # Use transposed transformation matrix to go from local to global
             global_coords[i] = node0_coords + T.T @ local_coords[i]
         
         # Plot the deformed shape
@@ -149,7 +159,9 @@ def plot_mode_shape(Frame, elem_list, shape_function, eigenvector, scale: float 
     
     # First element for legend
     ax.plot([], [], [], '-r', label='Mode Shape')
-    
+    # ax.set_xlim(-10, 20)
+    # ax.set_ylim(-5, 30)
+    # ax.set_zlim(0, 30)
     ax.legend()
     ax.set_xlabel('x')
     ax.set_ylabel('y')
