@@ -27,7 +27,7 @@ class Element(Frame):
         self.element_dof_list_ = []
     def __repr__(self):
         # prints the element's properties
-        return f"Element id: (E={self.E}), A={self.A}, L={self.L}, Iy={self.Iy}, Iz={self.Iz}, J={self.J}, nu={self.nu}"
+        return f"Element id: E={self.E}, A={self.A}, L={self.L}, Iy={self.Iy}, Iz={self.Iz}, J={self.J}, nu={self.nu}"
     
     def dof_list(self,):
         return [*list(range(self.node_list[0].id*6, self.node_list[0].id*6 + 6)), *list(range(self.node_list[1].id*6, self.node_list[1].id*6 + 6))]
@@ -53,18 +53,3 @@ class Element(Frame):
     
     def internal_force(self, delta):
          return self.Gamma() @ (self.global_stiffness_mat()  @ delta[self.element_dof_list_])
-
-# Example usage:
-
-# Case 1: User defines a shared variable in Frame
-# Frame.set_cross_section(E = 100, A = 200, L = 300, I = 400)
-# elem1 = Element(E = 10)
-# print(elem1)  # Output: Element(variable=100)
-# Case 2: The shared variable is not set, so each Element gets its own value
-# Frame.shared_value = None  # Unset the shared variable
-# elem3 = Element(E = 30)
-# elem4 = Element(A = 40)
-# elem5 = Element(L = 50, id = 5)
-# print(elem3)  # Output: Element(variable=30)
-# print(elem4)  
-# print(elem5)  # Output: Element(variable=50)

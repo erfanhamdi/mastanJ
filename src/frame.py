@@ -56,7 +56,7 @@ class Frame:
             self.K[6*node_2_id:6*(node_2_id+1), 6*node_1_id:6*(node_1_id+1)] += small_K[6:, :6]
             self.K[6*node_2_id:6*(node_2_id+1), 6*node_2_id:6*(node_2_id+1)] += small_K[6:, 6:]
         self.partition()
-            
+
     def partition(self,):
         f_list = []
         for node in self.nodes:
@@ -82,7 +82,6 @@ class Frame:
             small_K_g = elem.global_geometric_stiffness_mat(elem.k_g)
             node_1_id = elem.node_list[0].id
             node_2_id = elem.node_list[1].id
-
             self.K_g[6*node_1_id:6*(node_1_id+1), 6*node_1_id:6*(node_1_id+1)] += small_K_g[:6, :6]
             self.K_g[6*node_1_id:6*(node_1_id+1), 6*node_2_id:6*(node_2_id+1)] += small_K_g[:6, 6:]
             self.K_g[6*node_2_id:6*(node_2_id+1), 6*node_1_id:6*(node_1_id+1)] += small_K_g[6:, :6]
@@ -90,7 +89,6 @@ class Frame:
         self.partition_geometric()    
 
     def partition_geometric(self,):
-        f_list = []
         self.K_ff_g = self.K_g[np.ix_(self.free_dofs, self.free_dofs)]
         self.K_fs_g = self.K_g[np.ix_(self.free_dofs, self.fixed_dofs)]
         self.K_sf_g = self.K_g[np.ix_(self.fixed_dofs, self.free_dofs)]
@@ -99,28 +97,3 @@ class Frame:
     def eigenvalue_analysis(self,):
         eig_val, eig_vec = scipy.linalg.eig(self.K_ff, -self.K_ff_g)
         return eig_val, eig_vec
-
-
-    # def plot_initial(self,):
-    #     plt.figure()
-    #     for node in self.nodes:
-    #         plt.scatter(node.coords[0], node.coords[1], color='red')
-    #     for elem in self.elems:
-    #         x = [elem.node_list[0].coords[0], elem.node_list[1].coords[0]]
-    #         y = [elem.node_list[0].coords[1], elem.node_list[1].coords[1]]
-    #         plt.plot(x, y, color='black')
-    #     plt.plot(x, y, color='black', label = f"Initial state")
-    
-    # def plot_deformed(self, dofs_array_deformed, scale = 10):
-    #     self.plot_initial()
-    #     dofs_array_deformed[self.free_dofs] = self.dofs_array[self.free_dofs] + self.Delta_f * scale
-    #     x = dofs_array_deformed[0::6]
-    #     y = dofs_array_deformed[1::6]
-    #     plt.scatter(x, y, color='red')
-    #     for i, elem in enumerate(self.elems):
-    #         x = [dofs_array_deformed[6*elem.node_list[0].id], dofs_array_deformed[6*elem.node_list[1].id]]
-    #         y = [dofs_array_deformed[6*elem.node_list[0].id+1], dofs_array_deformed[6*elem.node_list[1].id+1]]
-    #         plt.plot(x, y, 'k--')
-    #     plt.legend()
-    #     plt.plot(x, y, 'k--', label = f"Deformed (scale = {scale}")
-        

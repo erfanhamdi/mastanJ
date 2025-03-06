@@ -1,18 +1,19 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_mode_shape(Frame, elem_list, shape_function, eigenvector, scale: float = 1, discretization_points: int = 20):
+def plot_original_shape(elem_list, discretization_points: int = 20):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    
-    # Plot original shape
     for elem_ in elem_list:
         x_lin = np.linspace(elem_.node_list[0].coords[0], elem_.node_list[1].coords[0], discretization_points)
         y_lin = np.linspace(elem_.node_list[0].coords[1], elem_.node_list[1].coords[1], discretization_points)
         z_lin = np.linspace(elem_.node_list[0].coords[2], elem_.node_list[1].coords[2], discretization_points)
         ax.plot(x_lin, y_lin, z_lin, '--k')
-    ax.plot([], [], [], '--k', label='Original Shape')    
+    ax.plot([], [], [], '--k', label='Original Shape')
+    return fig, ax
 
+def plot_mode_shape(Frame, elem_list, shape_function, eigenvector, scale: float = 1, discretization_points: int = 20):
+    fig, ax = plot_original_shape(elem_list, discretization_points)
     free_dofs = Frame.free_dofs
     fixed_dofs = Frame.fixed_dofs
     eigenvector_array = np.zeros(len(free_dofs) + len(fixed_dofs))
@@ -22,7 +23,6 @@ def plot_mode_shape(Frame, elem_list, shape_function, eigenvector, scale: float 
     
     for elem_ in elem_list:
         node_ids = [elem_.node_list[0].id, elem_.node_list[1].id]
-        
         # Get node coordinates and eigenvector displacements
         node0_coords = elem_.node_list[0].coords
         node1_coords = elem_.node_list[1].coords
