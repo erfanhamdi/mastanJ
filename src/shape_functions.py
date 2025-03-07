@@ -79,6 +79,8 @@ def plot_mode_shape(Frame, elem_list, shape_function, eigenvector, scale: float 
     ax.set_ylabel('y')
     ax.set_zlabel('z')
     ax.set_title('Buckling Mode Shape')
+    # save the figure
+    plt.savefig('mode_shape.png')
     plt.show()
 
 class HermiteShapeFunctions:
