@@ -3,26 +3,27 @@ import numpy as np
 from src.frame import Frame
 from src.element import Element
 from src.node import Node
-from src.shape_functions3 import plot_mode_shape, HermiteShapeFunctions
+from src.shape_functions import plot_mode_shape, HermiteShapeFunctions
 
 if __name__ == "__main__":
 ##################################### Problem 1 #################################################
     r = 1
-    E = 10000
-    nu = 0.3
+    E = 10000  
     A = np.pi*r**2
     I_y = np.pi*r**4 / 4
     I_z = np.pi*r**4 / 4
     I_rho = np.pi*r**4 / 2
     J = np.pi*r**4 / 2
-    x1, y1, z1 = 25, 50, 37
+    nu = 0.3
+    x1, y1, z1 = 18, 56, 44
     x0, y0, z0 = 0, 0, 0
     F8 = Frame()
     node0 = Node(coords = np.array([0, 0, 0]), u_x = 0, u_y = 0, u_z = 0, theta_x = 0, theta_y = 0, theta_z = 0)
-    node6 = Node(coords = np.array([25, 50, 37]), F_x = 0.05, F_y = -0.1, F_z = 0.23, M_x = 0.1, M_y = -0.025, M_z = -0.08)
-    x_ = np.linspace(0, 25, 7)[1:]
-    y_ = np.linspace(0, 50, 7)[1:]
-    z_ = np.linspace(0, 37, 7)[1:]
+    node6 = Node(coords = np.array([x1, y1, z1]), F_x = 0.05, F_y = -0.1, F_z = 0.23, M_x = 0.1, M_y = -0.025, M_z = -0.08)
+    x_ = np.linspace(0, x1, 7)[1:-1]
+    y_ = np.linspace(0, y1, 7)[1:-1]
+    z_ = np.linspace(0, z1, 7)[1:-1]
+    print(x_, y_, z_)
     interm_nodes = [node0]
     for i in range(5):
         interm_nodes.append(Node(coords = np.array([x_[i], y_[i], z_[i]]), F_x = 0, F_y = 0, F_z = 0, M_x = 0, M_y = 0, M_z = 0))
@@ -33,8 +34,9 @@ if __name__ == "__main__":
     F8.add_elements(elems)
     F8.assemble()
     delta, F_rxn = F8.solve()
-    print(f"Delta:\n {delta}")
-    print(f"Reaction force on supports:\n {F_rxn}")
+    for i in range(len(interm_nodes)):
+        print(f"delta node {i}: {delta[i * 6 : (i + 1) * 6]}")
+        print(f"Force/Momments on node {i}:\n {F_rxn[i * 6 : (i + 1) * 6]}")
 
 ##################################### Problem 2 #################################################
     P = 1
@@ -52,10 +54,7 @@ if __name__ == "__main__":
     F9.add_elements(elems)
     F9.assemble()
     delta, F_rxn = F9.solve()
-    # print(f"Delta:\n {delta}")
-    # print(f"Reaction force on supports:\n {F_rxn}")
     hermite_sf = HermiteShapeFunctions()
-    # plot_deformed([element0], hermite_sf, delta, scale=10)
     F9.assemble_geometric()
     eigvals, eigvecs = F9.eigenvalue_analysis()
     critical_load_idx = np.argsort(abs(eigvals.real))[0]
@@ -64,13 +63,12 @@ if __name__ == "__main__":
     eigvec_array[F9.free_dofs] = mode_shape
     eigvec_array[F9.fixed_dofs] = 0
     print(f"Critical buckling load:\n {abs(eigvals.real)[critical_load_idx]}")
-    # print(f"Buckling mode:\n {eigvecs[:, critical_load_idx]}")
 
 ##################################### Problem 3 #################################################
-    L1 = 11.0
-    L2 = 23.0
-    L3 = 15.0
-    L4 = 13.0
+    L1 = 15.0
+    L2 = 30.0
+    L3 = 14.0
+    L4 = 16.0
     r = 1
     b = 0.5
     h = 1

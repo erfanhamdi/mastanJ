@@ -232,3 +232,4 @@ def test_check_parallel():
     for vec1, vec2 in parallel_pairs:
         with pytest.raises(ValueError, match="Reference vector is parallel to beam axis."):
             check_parallel(vec1, vec2)
+
