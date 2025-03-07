@@ -61,3 +61,18 @@ F.assemble()
 ```python
 delta, F_rxn = F.solve()
 ```
+7. you can also do buckling analysis, to do that first you need to assemble the geometric stiffness matrix and then partition it.
+```python
+F.assemble_geometric()
+```
+8. then you can solve for the buckling loads
+```python
+eigvals, eigvecs = F.eigenvalue_analysis()
+```
+9. To plot the mode shapes you have to define a shape_function object and provide it to the plot_mode_shapes function:
+```python
+hermite_sf = HermiteShapeFunctions()
+F.plot_mode_shapes(eigvecs)
+plot_mode_shape(F, F.elems, hermite_sf, eigvec_mode_shape, scale=10, discretization_points=20)
+```
+* check the `tutorials.ipynb` for more details.
