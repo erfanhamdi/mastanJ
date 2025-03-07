@@ -1,0 +1,1 @@
+I used cursor AI ide and Claude sonnet 3.7 for generating tests.
